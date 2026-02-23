@@ -1,0 +1,171 @@
+import { useState } from 'react'
+import '../styles/Dashboard.css'
+
+export default function Dashboard() {
+  // Pseudo data for plants
+  const [plants] = useState([
+    {
+      id: 1,
+      name: 'Tomato',
+      type: 'Vegetable',
+      location: 'Garden Bed A',
+      daysOld: 45,
+      health: 'Excellent',
+      icon: '🍅'
+    },
+    {
+      id: 2,
+      name: 'Basil',
+      type: 'Herb',
+      location: 'Kitchen Window',
+      daysOld: 30,
+      health: 'Good',
+      icon: '🌿'
+    },
+    {
+      id: 3,
+      name: 'Lettuce',
+      type: 'Vegetable',
+      location: 'Garden Bed B',
+      daysOld: 20,
+      health: 'Good',
+      icon: '🥬'
+    },
+    {
+      id: 4,
+      name: 'Mint',
+      type: 'Herb',
+      location: 'Pot on Patio',
+      daysOld: 60,
+      health: 'Excellent',
+      icon: '🌱'
+    }
+  ])
+
+  // Pseudo weather data
+  const weather = {
+    location: 'San Francisco, CA',
+    temperature: 72,
+    humidity: 65,
+    condition: 'Partly Cloudy',
+    forecast: [
+      { day: 'Today', temp: 72, condition: '⛅' },
+      { day: 'Tomorrow', temp: 70, condition: '☁️' },
+      { day: 'Wednesday', temp: 68, condition: '🌧️' },
+      { day: 'Thursday', temp: 75, condition: '☀️' }
+    ]
+  }
+
+  // Pseudo Gemini recommendations
+  const recommendations = [
+    {
+      id: 1,
+      plant: 'Tomato',
+      recommendation: 'Water deeply in the morning. Ensure soil stays moist but not waterlogged.',
+      priority: 'high',
+      icon: '💧'
+    },
+    {
+      id: 2,
+      plant: 'Lettuce',
+      recommendation: 'Provide shade during afternoon hours to prevent bolting in warm weather.',
+      priority: 'medium',
+      icon: '🌞'
+    },
+    {
+      id: 3,
+      plant: 'Basil',
+      recommendation: 'Pinch off flower buds to encourage leaf growth and extend harvest season.',
+      priority: 'low',
+      icon: '✂️'
+    },
+    {
+      id: 4,
+      plant: 'Mint',
+      recommendation: 'Harvest leaves regularly to promote bushier growth and prevent flowering.',
+      priority: 'medium',
+      icon: '🌿'
+    }
+  ]
+
+  // Helper function to get recommendation for a plant
+  const getRecommendation = (plantName) => {
+    return recommendations.find(rec => rec.plant === plantName)
+  }
+
+  return (
+    <div className="dashboard">
+      {/* Header */}
+      <header className="header">
+        <div className="header-content">
+          <h1>🌳 Agritek Dashboard</h1>
+          <p>Manage your garden efficiently with AI-powered insights</p>
+        </div>
+      </header>
+
+      <div className="dashboard-container">
+        {/* Weather Section */}
+        <section className="section weather-section">
+          <h2>🌤️ Weather Forecast</h2>
+          <div className="weather-main">
+            <div className="weather-info">
+              <h3>{weather.location}</h3>
+              <p className="temperature">{weather.temperature}°F</p>
+              <p className="condition">{weather.condition}</p>
+              <p className="humidity">💧 Humidity: {weather.humidity}%</p>
+            </div>
+          </div>
+          <div className="weather-forecast">
+            {weather.forecast.map((day, index) => (
+              <div key={index} className="forecast-item">
+                <p className="day">{day.day}</p>
+                <p className="emoji">{day.condition}</p>
+                <p className="temp">{day.temp}°F</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Plants Section */}
+        <section className="section plants-section">
+          <h2>🌾 Your Plants</h2>
+          <div className="plants-grid">
+            {plants.map(plant => {
+              const rec = getRecommendation(plant.name)
+              return (
+                <div key={plant.id} className="plant-card">
+                  <div className="plant-icon">{plant.icon}</div>
+                  <h3>{plant.name}</h3>
+                  <p className="plant-type">{plant.type}</p>
+                  <div className="plant-details">
+                    <div className="detail">
+                      <span className="label">📍 Location:</span>
+                      <span className="value">{plant.location}</span>
+                    </div>
+                    <div className="detail">
+                      <span className="label">📅 Age:</span>
+                      <span className="value">{plant.daysOld} days</span>
+                    </div>
+                    <div className="detail">
+                      <span className="label">💚 Health:</span>
+                      <span className={`value health-${plant.health.toLowerCase()}`}>{plant.health}</span>
+                    </div>
+                  </div>
+                  {rec && (
+                    <div className={`plant-recommendation priority-${rec.priority}`}>
+                      <div className="rec-header-card">
+                        <span className="rec-icon">{rec.icon}</span>
+                        <span className={`priority-badge-card ${rec.priority}`}>{rec.priority}</span>
+                      </div>
+                      <p className="rec-text-card">{rec.recommendation}</p>
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+        </section>
+      </div>
+    </div>
+  )
+}

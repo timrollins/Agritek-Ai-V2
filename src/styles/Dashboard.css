@@ -1,0 +1,309 @@
+.dashboard {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  background: linear-gradient(135deg, #2d5a4e 0%, #1e3a35 100%);
+  color: white;
+  padding: 2rem;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.header-content h1 {
+  margin: 0;
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.header-content p {
+  margin: 0;
+  font-size: 1rem;
+  opacity: 0.9;
+}
+
+.dashboard-container {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem;
+  width: 100%;
+  flex: 1;
+}
+
+.section {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.section h2 {
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  font-size: 1.5rem;
+  color: #2d5a4e;
+  border-bottom: 3px solid #4caf50;
+  padding-bottom: 0.5rem;
+}
+
+/* Plants Section */
+.plants-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1.5rem;
+}
+
+.plant-card {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e8f5e9 100%);
+  border-radius: 12px;
+  padding: 1.5rem;
+  text-align: center;
+  border: 2px solid #4caf50;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+}
+
+.plant-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 8px 16px rgba(76, 175, 80, 0.3);
+  border-color: #45a049;
+}
+
+.plant-icon {
+  font-size: 3rem;
+  margin-bottom: 0.5rem;
+}
+
+.plant-card h3 {
+  margin: 0.5rem 0;
+  font-size: 1.3rem;
+  color: #2d5a4e;
+}
+
+.plant-type {
+  color: #666;
+  font-size: 0.9rem;
+  margin: 0.5rem 0 1rem 0;
+}
+
+.plant-details {
+  text-align: left;
+  font-size: 0.9rem;
+}
+
+.plant-details .detail {
+  display: flex;
+  justify-content: space-between;
+  margin: 0.5rem 0;
+  color: #555;
+}
+
+.plant-details .label {
+  font-weight: 600;
+  color: #2d5a4e;
+}
+
+.plant-details .value {
+  color: #666;
+}
+
+.health-excellent {
+  color: #4caf50;
+  font-weight: 600;
+}
+
+.health-good {
+  color: #ff9800;
+  font-weight: 600;
+}
+
+/* Plant Recommendation Section */
+.plant-recommendation {
+  margin-top: auto;
+  padding-top: 1rem;
+  border-top: 2px solid rgba(76, 175, 80, 0.2);
+}
+
+.plant-recommendation.priority-high {
+  border-top-color: rgba(244, 67, 54, 0.3);
+}
+
+.plant-recommendation.priority-medium {
+  border-top-color: rgba(255, 152, 0, 0.3);
+}
+
+.plant-recommendation.priority-low {
+  border-top-color: rgba(76, 175, 80, 0.3);
+}
+
+.rec-header-card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.rec-icon {
+  font-size: 1.2rem;
+}
+
+.priority-badge-card {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  color: white;
+}
+
+.priority-badge-card.high {
+  background: #f44336;
+}
+
+.priority-badge-card.medium {
+  background: #ff9800;
+}
+
+.priority-badge-card.low {
+  background: #4caf50;
+}
+
+.rec-text-card {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #333;
+  line-height: 1.4;
+  font-weight: 500;
+}
+
+/* Weather Section */
+.weather-section {
+  grid-column: 1 / -1;
+}
+
+.weather-main {
+  background: linear-gradient(135deg, #87ceeb 0%, #e0f6ff 100%);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.weather-info {
+  color: #1e3a35;
+  text-align: center;
+}
+
+.weather-info h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #2d5a4e;
+}
+
+.temperature {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin: 0.5rem 0;
+  color: #1e3a35;
+}
+
+.condition {
+  font-size: 1rem;
+  color: #2d5a4e;
+  margin: 0.5rem 0;
+}
+
+.humidity {
+  margin: 0.5rem 0 0 0;
+  color: #1e3a35;
+  font-weight: 500;
+}
+
+.weather-forecast {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+}
+
+.forecast-item {
+  background: #f0f8ff;
+  border: 2px solid #87ceeb;
+  border-radius: 8px;
+  padding: 0.8rem;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+.forecast-item .day {
+  margin: 0 0 0.3rem 0;
+  color: #2d5a4e;
+  font-weight: 600;
+}
+
+.forecast-item .emoji {
+  font-size: 1.5rem;
+  margin: 0.3rem 0;
+}
+
+.forecast-item .temp {
+  margin: 0.3rem 0 0 0;
+  color: #1e3a35;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .dashboard-container {
+    grid-template-columns: 1fr;
+  }
+  
+  .plants-grid {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .header-content h1 {
+    font-size: 2rem;
+  }
+  
+  .dashboard-container {
+    padding: 1rem;
+    gap: 1rem;
+  }
+  
+  .section {
+    padding: 1rem;
+  }
+  
+  .plants-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  }
+  
+  .weather-forecast {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .header-content h1 {
+    font-size: 1.5rem;
+  }
+  
+  .plants-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .weather-forecast {
+    grid-template-columns: 1fr;
+  }
+}
