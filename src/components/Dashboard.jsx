@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import '../styles/Dashboard.css'
 
-export default function Dashboard() {
+export default function Dashboard({ onNavigate }) {
   // Pseudo data for plants
   const [plants] = useState([
     {
@@ -133,7 +133,12 @@ export default function Dashboard() {
             {plants.map(plant => {
               const rec = getRecommendation(plant.name)
               return (
-                <div key={plant.id} className="plant-card">
+                <div 
+                  key={plant.id} 
+                  className="plant-card clickable"
+                  onClick={() => onNavigate('my-plants', plant.id)}
+                  style={{ cursor: 'pointer' }}
+                >
                   <div className="plant-icon">{plant.icon}</div>
                   <h3>{plant.name}</h3>
                   <p className="plant-type">{plant.type}</p>

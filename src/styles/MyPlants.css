@@ -52,6 +52,12 @@
   box-shadow: 0 8px 20px rgba(76, 175, 80, 0.2);
 }
 
+.plant-detail-card.highlighted {
+  border: 3px solid #4caf50;
+  box-shadow: 0 0 20px rgba(76, 175, 80, 0.4);
+  background: linear-gradient(135deg, #ffffff 0%, #f1f8e9 100%);
+}
+
 .plant-header {
   display: flex;
   align-items: center;
@@ -220,6 +226,36 @@
   line-height: 1.6;
 }
 
+/* Floating Action Button */
+.fab-button {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+  border: none;
+  color: white;
+  font-size: 1.8rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+  transition: all 0.3s ease;
+  z-index: 999;
+}
+
+.fab-button:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 20px rgba(76, 175, 80, 0.6);
+}
+
+.fab-button:active {
+  transform: scale(0.95);
+}
+
 /* Responsive Design */
 @media (max-width: 1200px) {
   .plants-container {
@@ -259,6 +295,14 @@
   .conditions-grid {
     grid-template-columns: 1fr;
   }
+
+  .fab-button {
+    bottom: 1.5rem;
+    right: 1.5rem;
+    width: 56px;
+    height: 56px;
+    font-size: 1.6rem;
+  }
 }
 
 @media (max-width: 480px) {
@@ -276,5 +320,13 @@
 
   .plant-detail-card {
     padding: 1rem;
+  }
+
+  .fab-button {
+    bottom: 1rem;
+    right: 1rem;
+    width: 52px;
+    height: 52px;
+    font-size: 1.4rem;
   }
 }
