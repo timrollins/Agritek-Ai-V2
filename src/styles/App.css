@@ -1,0 +1,9 @@
+.app-wrapper {
+  display: flex;
+  min-height: 100vh;
+}
+
+.dashboard {
+  flex: 1;
+  margin-left: 80px;
+}
