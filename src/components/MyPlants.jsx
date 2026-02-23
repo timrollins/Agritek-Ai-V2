@@ -1,7 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import '../styles/MyPlants.css'
 
-export default function MyPlants() {
+export default function MyPlants({ selectedPlantId }) {
   const [plants] = useState([
     {
       id: 1,
@@ -73,6 +73,14 @@ export default function MyPlants() {
     }
   ])
 
+  const plantRefs = useRef({})
+
+  useEffect(() => {
+    if (selectedPlantId && plantRefs.current[selectedPlantId]) {
+      plantRefs.current[selectedPlantId].scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+  }, [selectedPlantId])
+
   return (
     <div className="my-plants">
       <header className="plants-header">
@@ -82,7 +90,11 @@ export default function MyPlants() {
 
       <div className="plants-container">
         {plants.map(plant => (
-          <div key={plant.id} className="plant-detail-card">
+          <div 
+            key={plant.id} 
+            ref={el => plantRefs.current[plant.id] = el}
+            className={`plant-detail-card ${selectedPlantId === plant.id ? 'highlighted' : ''}`}
+          >
             <div className="plant-header">
               <div className="plant-icon-large">{plant.icon}</div>
               <div className="plant-info-header">
@@ -164,6 +176,10 @@ export default function MyPlants() {
           </div>
         ))}
       </div>
+
+      <button className="fab-button" title="Add new plant">
+        ➕
+      </button>
     </div>
   )
 }

@@ -6,12 +6,20 @@ import MyPlants from './components/MyPlants'
 
 function App() {
   const [currentPage, setCurrentPage] = useState('dashboard')
+  const [selectedPlantId, setSelectedPlantId] = useState(null)
+
+  const handleNavigate = (page, plantId = null) => {
+    setCurrentPage(page)
+    if (plantId) {
+      setSelectedPlantId(plantId)
+    }
+  }
 
   return (
     <div className="app-wrapper">
-      <Navigation onNavigate={setCurrentPage} currentPage={currentPage} />
-      {currentPage === 'dashboard' && <Dashboard />}
-      {currentPage === 'my-plants' && <MyPlants />}
+      <Navigation onNavigate={handleNavigate} currentPage={currentPage} />
+      {currentPage === 'dashboard' && <Dashboard onNavigate={handleNavigate} />}
+      {currentPage === 'my-plants' && <MyPlants selectedPlantId={selectedPlantId} />}
     </div>
   )
 }
