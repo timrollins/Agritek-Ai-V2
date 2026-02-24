@@ -1,7 +1,15 @@
 import { useState } from 'react'
 import '../styles/Dashboard.css'
+import { useLocation } from '../hooks/useLocation'
+import { useWeather } from '../hooks/useWeather'
 
 export default function Dashboard({ onNavigate }) {
+  // Fetch user location based on GPS
+  const { userLocation, coordinates } = useLocation()
+  
+  // Fetch weather data based on coordinates and location
+  const weather = useWeather(coordinates, userLocation)
+
   // Pseudo data for plants
   const [plants] = useState([
     {
@@ -41,20 +49,6 @@ export default function Dashboard({ onNavigate }) {
       icon: '🌱'
     }
   ])
-
-  // Pseudo weather data
-  const weather = {
-    location: 'San Francisco, CA',
-    temperature: 72,
-    humidity: 65,
-    condition: 'Partly Cloudy',
-    forecast: [
-      { day: 'Today', temp: 72, condition: '⛅' },
-      { day: 'Tomorrow', temp: 70, condition: '☁️' },
-      { day: 'Wednesday', temp: 68, condition: '🌧️' },
-      { day: 'Thursday', temp: 75, condition: '☀️' }
-    ]
-  }
 
   // Pseudo Gemini recommendations
   const recommendations = [
@@ -110,7 +104,7 @@ export default function Dashboard({ onNavigate }) {
           <div className="weather-main">
             <div className="weather-info">
               <h3>{weather.location}</h3>
-              <p className="temperature">{weather.temperature}°F</p>
+              <p className="temperature">{weather.temperature}°C</p>
               <p className="condition">{weather.condition}</p>
               <p className="humidity">💧 Humidity: {weather.humidity}%</p>
             </div>
@@ -119,8 +113,10 @@ export default function Dashboard({ onNavigate }) {
             {weather.forecast.map((day, index) => (
               <div key={index} className="forecast-item">
                 <p className="day">{day.day}</p>
+                {day.date && <p className="date" style={{ fontSize: '12px', color: '#666' }}>{day.date}</p>}
                 <p className="emoji">{day.condition}</p>
-                <p className="temp">{day.temp}°F</p>
+                <p className="temp">{day.temp}°C</p>
+                {day.description && <p style={{ fontSize: '11px', color: '#666', margin: '4px 0 0 0' }}>{day.description}</p>}
               </div>
             ))}
           </div>
