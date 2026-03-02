@@ -3,6 +3,7 @@ import './styles/App.css'
 import Navigation from './components/Navigation'
 import Dashboard from './components/Dashboard'
 import MyPlants from './components/MyPlants'
+import AIInsights from './components/AIInsights'
 
 function App() {
   const [currentPage, setCurrentPage] = useState('dashboard')
@@ -20,6 +21,7 @@ function App() {
       <Navigation onNavigate={handleNavigate} currentPage={currentPage} />
       {currentPage === 'dashboard' && <Dashboard onNavigate={handleNavigate} />}
       {currentPage === 'my-plants' && <MyPlants selectedPlantId={selectedPlantId} />}
+      {currentPage === 'ai-insights' && <AIInsights />}
     </div>
   )
 }
