@@ -1,8 +1,10 @@
 import { useState, useEffect, useRef } from 'react'
 import '../styles/MyPlants.css'
+import AddPlantModal from './AddPlantModal'
 
 export default function MyPlants({ selectedPlantId }) {
-  const [plants] = useState([
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [plants, setPlants] = useState([
     {
       id: 1,
       name: 'Tomato',
@@ -75,6 +77,12 @@ export default function MyPlants({ selectedPlantId }) {
 
   const plantRefs = useRef({})
 
+  const handleDeletePlant = (plantId) => {
+    if (confirm('Are you sure you want to remove this plant?')) {
+      setPlants(plants.filter(plant => plant.id !== plantId))
+    }
+  }
+
   useEffect(() => {
     if (selectedPlantId && plantRefs.current[selectedPlantId]) {
       plantRefs.current[selectedPlantId].scrollIntoView({ behavior: 'smooth', block: 'start' })
@@ -104,6 +112,13 @@ export default function MyPlants({ selectedPlantId }) {
                   ♥ {plant.health}
                 </span>
               </div>
+              <button
+                className="delete-plant-btn"
+                onClick={() => handleDeletePlant(plant.id)}
+                title="Remove plant"
+              >
+                🗑️
+              </button>
             </div>
 
             <div className="plant-stats">
@@ -177,9 +192,15 @@ export default function MyPlants({ selectedPlantId }) {
         ))}
       </div>
 
-      <button className="fab-button" title="Add new plant">
+<button className="fab-button" title="Add new plant" onClick={() => setIsModalOpen(true)}>
         ➕
       </button>
+
+      <AddPlantModal 
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onAddPlant={(newPlant) => setPlants([...plants, newPlant])}
+      />
     </div>
   )
 }
