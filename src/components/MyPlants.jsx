@@ -98,8 +98,8 @@ export default function MyPlants({ selectedPlantId }) {
 
       <div className="plants-container">
         {plants.map(plant => (
-          <div 
-            key={plant.id} 
+          <div
+            key={plant.id}
             ref={el => plantRefs.current[plant.id] = el}
             className={`plant-detail-card ${selectedPlantId === plant.id ? 'highlighted' : ''}`}
           >
@@ -185,18 +185,18 @@ export default function MyPlants({ selectedPlantId }) {
             </div>
 
             <div className="plant-description">
-              <h3>Notes</h3>
+              <h3>🤖 AI Recommendations & Notes</h3>
               <p>{plant.description}</p>
             </div>
           </div>
         ))}
       </div>
 
-<button className="fab-button" title="Add new plant" onClick={() => setIsModalOpen(true)}>
+      <button className="fab-button" title="Add new plant" onClick={() => setIsModalOpen(true)}>
         ➕
       </button>
 
-      <AddPlantModal 
+      <AddPlantModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onAddPlant={(newPlant) => setPlants([...plants, newPlant])}
