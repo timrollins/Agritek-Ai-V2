@@ -2,13 +2,15 @@
   height: 100vh;
   display: flex;
   flex-direction: column;
-  background: linear-gradient(135deg, #f5f7fa 0%, #e8f5e9 100%);
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
   overflow: hidden;
+  margin-left: 80px;
+  flex: 1;
 }
 
 /* Header */
 .ai-header {
-  background: linear-gradient(135deg, #2e7d32 0%, #4caf50 100%);
+  background: linear-gradient(135deg, #2d5a4e 0%, #1e3a35 100%);
   color: white;
   padding: 1.5rem 2rem;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -35,8 +37,15 @@
 }
 
 @keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
 }
 
 .ai-title h1 {
@@ -56,7 +65,8 @@
   gap: 1rem;
 }
 
-.btn-primary, .btn-secondary {
+.btn-primary,
+.btn-secondary {
   padding: 0.75rem 1.5rem;
   border: none;
   border-radius: 8px;
@@ -68,7 +78,7 @@
 
 .btn-primary {
   background: white;
-  color: #2e7d32;
+  color: #2d5a4e;
 }
 
 .btn-primary:hover {
@@ -113,6 +123,7 @@
     transform: translateX(-100%);
     opacity: 0;
   }
+
   to {
     transform: translateX(0);
     opacity: 1;
@@ -130,7 +141,7 @@
 .sidebar-header h3 {
   margin: 0;
   font-size: 1.1rem;
-  color: #2e7d32;
+  color: #2d5a4e;
 }
 
 .close-sidebar {
@@ -181,7 +192,7 @@
 }
 
 .session-item.active {
-  background: #e8f5e9;
+  background: #e0f6ff;
   border-color: #4caf50;
 }
 
@@ -236,7 +247,7 @@
 
 /* Weather Widget */
 .weather-widget {
-  background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+  background: linear-gradient(135deg, #87ceeb 0%, #e0f6ff 100%);
   padding: 1rem 1.5rem;
   border-bottom: 2px solid #4caf50;
   display: flex;
@@ -256,7 +267,7 @@
   align-items: center;
   gap: 0.5rem;
   font-weight: 600;
-  color: #2e7d32;
+  color: #2d5a4e;
 }
 
 .location-icon {
@@ -272,7 +283,7 @@
 .weather-temp {
   font-size: 1.8rem;
   font-weight: 700;
-  color: #2e7d32;
+  color: #2d5a4e;
 }
 
 .weather-condition {
@@ -308,7 +319,7 @@
 .forecast-label {
   font-size: 0.75rem;
   font-weight: 600;
-  color: #2e7d32;
+  color: #2d5a4e;
   text-transform: uppercase;
 }
 
@@ -341,12 +352,12 @@
 }
 
 .chat-messages::-webkit-scrollbar-thumb {
-  background: #4caf50;
+  background: #2d5a4e;
   border-radius: 4px;
 }
 
 .chat-messages::-webkit-scrollbar-thumb:hover {
-  background: #2e7d32;
+  background: #1e3a35;
 }
 
 /* Quick Questions */
@@ -355,7 +366,7 @@
 }
 
 .quick-questions h3 {
-  color: #2e7d32;
+  color: #2d5a4e;
   margin-bottom: 1rem;
   font-size: 1.2rem;
 }
@@ -368,22 +379,22 @@
 
 .quick-question-btn {
   padding: 1rem;
-  background: linear-gradient(135deg, #e8f5e9 0%, #f1f8e9 100%);
-  border: 2px solid #c8e6c9;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e0f6ff 100%);
+  border: 2px solid #87ceeb;
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.3s ease;
   text-align: left;
   font-size: 0.95rem;
-  color: #2e7d32;
+  color: #2d5a4e;
   font-weight: 500;
 }
 
 .quick-question-btn:hover {
   transform: translateY(-4px);
-  box-shadow: 0 6px 20px rgba(76, 175, 80, 0.2);
-  border-color: #4caf50;
-  background: linear-gradient(135deg, #c8e6c9 0%, #dcedc8 100%);
+  box-shadow: 0 6px 20px rgba(45, 90, 78, 0.2);
+  border-color: #2d5a4e;
+  background: linear-gradient(135deg, #e0f6ff 0%, #c3cfe2 100%);
 }
 
 /* Messages */
@@ -398,6 +409,7 @@
     opacity: 0;
     transform: translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -444,13 +456,13 @@
 }
 
 .message.assistant .message-text {
-  background: linear-gradient(135deg, #f5f5f5 0%, #e8f5e9 100%);
+  background: linear-gradient(135deg, #f5f5f5 0%, #e0f6ff 100%);
   color: #333;
   border-bottom-left-radius: 4px;
 }
 
 .message.user .message-text {
-  background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
+  background: linear-gradient(135deg, #2d5a4e 0%, #1e3a35 100%);
   color: white;
   border-bottom-right-radius: 4px;
 }
@@ -466,7 +478,7 @@
   display: flex;
   gap: 0.5rem;
   padding: 1rem 1.25rem;
-  background: linear-gradient(135deg, #f5f5f5 0%, #e8f5e9 100%);
+  background: linear-gradient(135deg, #f5f5f5 0%, #e0f6ff 100%);
   border-radius: 16px;
   border-bottom-left-radius: 4px;
 }
@@ -475,7 +487,7 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #4caf50;
+  background: #2d5a4e;
   animation: typing 1.4s infinite;
 }
 
@@ -488,10 +500,14 @@
 }
 
 @keyframes typing {
-  0%, 60%, 100% {
+
+  0%,
+  60%,
+  100% {
     transform: translateY(0);
     opacity: 0.7;
   }
+
   30% {
     transform: translateY(-10px);
     opacity: 1;
@@ -517,8 +533,8 @@
 }
 
 .chat-input-wrapper:focus-within {
-  border-color: #4caf50;
-  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+  border-color: #2d5a4e;
+  box-shadow: 0 0 0 3px rgba(45, 90, 78, 0.1);
 }
 
 .chat-input {
@@ -548,7 +564,7 @@
   height: 44px;
   border-radius: 50%;
   border: none;
-  background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
+  background: linear-gradient(135deg, #2d5a4e 0%, #1e3a35 100%);
   color: white;
   font-size: 1.2rem;
   cursor: pointer;
@@ -634,7 +650,8 @@
     max-width: 90%;
   }
 
-  .btn-primary, .btn-secondary {
+  .btn-primary,
+  .btn-secondary {
     padding: 0.6rem 1rem;
     font-size: 0.85rem;
   }
@@ -671,7 +688,8 @@
     width: 100%;
   }
 
-  .btn-primary, .btn-secondary {
+  .btn-primary,
+  .btn-secondary {
     width: 100%;
   }
 

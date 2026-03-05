@@ -52,9 +52,9 @@ export default function AIInsights() {
   const startNewSession = () => {
     const newSessionId = `session_${Date.now()}`
     setCurrentSessionId(newSessionId)
-    
+
     const welcomeMessage = '👋 Hello! I\'m your AgriTek AI assistant. I\'m here to help you with all your farming and plant-related questions. Ask me about:\n\n🌱 Plant care and cultivation\n🌾 Crop management\n🐛 Pest and disease identification\n💧 Irrigation and water management\n🌤️ Weather and seasonal advice\n🌿 Organic farming practices\n\nWhat would you like to know today?'
-    
+
     setMessages([{
       role: 'assistant',
       content: welcomeMessage,
@@ -73,13 +73,13 @@ export default function AIInsights() {
 
     const allSessions = sessionHistory.filter(s => s.id !== currentSessionId)
     allSessions.unshift(session)
-    
+
     // Keep only last 20 sessions
     const limitedSessions = allSessions.slice(0, 20)
-    
+
     setSessions(limitedSessions)
     localStorage.setItem('agritek_chat_sessions', JSON.stringify(limitedSessions))
-    
+
     console.log('Session saved:', session.title)
     console.log('Total sessions:', limitedSessions.length)
   }
@@ -108,7 +108,7 @@ export default function AIInsights() {
     const updatedSessions = sessionHistory.filter(s => s.id !== sessionId)
     setSessions(updatedSessions)
     localStorage.setItem('agritek_chat_sessions', JSON.stringify(updatedSessions))
-    
+
     if (sessionId === currentSessionId) {
       startNewSession()
     }
@@ -138,7 +138,7 @@ export default function AIInsights() {
       console.log('Available models:', listData)
       if (listData.models) {
         console.log('Model names:', listData.models.map(m => m.name))
-        const generateContentModels = listData.models.filter(m => 
+        const generateContentModels = listData.models.filter(m =>
           m.supportedGenerationMethods?.includes('generateContent')
         )
         console.log('Models supporting generateContent:', generateContentModels.map(m => m.name))
@@ -166,7 +166,7 @@ export default function AIInsights() {
     try {
       const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`
       console.log('Calling API:', apiUrl.replace(apiKey, 'API_KEY_HIDDEN'))
-      
+
       const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
@@ -175,23 +175,27 @@ export default function AIInsights() {
         body: JSON.stringify({
           contents: [{
             parts: [{
-              text: `You are an expert agricultural AI assistant helping farmers. You have deep knowledge about plants, crops, farming techniques, pest management, soil health, irrigation, and sustainable agriculture practices. 
+              text: `You are an expert, highly precise agricultural AI assistant helping a farmer using the AgriTek platform. 
+You must directly answer the farmer's question with precise measurements (e.g., exact water quantities like "500ml", "1.5 liters per week", "2 inches over 1 square foot") and actionable recommendations.
+Keep a natural conversational flow without repetitive intro text. Be highly structured and easy to read.
 
-Context: The farmer is using AgriTek, a smart farming platform.
-
-Current Location & Weather:
-- Location: ${weather.location || 'Unknown'}
+Context: 
+- Current Location: ${weather.location || 'Unknown'}
 - Temperature: ${weather.temperature !== '--' ? weather.temperature + '°C' : 'Unknown'}
-- Condition: ${weather.condition || 'Unknown'}
 - Humidity: ${weather.humidity !== '--' ? weather.humidity + '%' : 'Unknown'}
+- Condition: ${weather.condition || 'Unknown'}
 ${weather.forecast && weather.forecast.length > 0 ? `- Forecast: ${weather.forecast.slice(0, 3).map(d => `${d.day}: ${d.temp}°C ${d.description}`).join(', ')}` : ''}
 
-Previous conversation:
-${messages.slice(-6).map(m => `${m.role}: ${m.content}`).join('\n')}
+Rules:
+1. Provide extremely precise, numeric answers when possible (e.g., specific water measurements, exact temperature ranges).
+2. Use clear spacing and formatting.
+3. Incorporate the weather forecast logic automatically without explicitly stating "According to the weather...", just give the direct advice.
+4. If a question is entirely unrelated to agriculture or plants, gently redirect to farming.
 
-Farmer's question: ${inputMessage}
+Previous conversation history:
+${messages.slice(-6).map(m => `${m.role === 'user' ? 'Farmer' : 'Assistant'}: ${m.content}`).join('\n')}
 
-Provide helpful, practical, and accurate advice. Consider the current weather conditions and forecast when giving recommendations. Use emojis sparingly to make the response friendly. If the question is not related to farming or agriculture, politely redirect the conversation back to agricultural topics.`
+Farmer's question: ${inputMessage}`
             }]
           }],
           generationConfig: {
@@ -211,7 +215,7 @@ Provide helpful, practical, and accurate advice. Consider the current weather co
 
       const data = await response.json()
       console.log('API Response:', data)
-      
+
       if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
         throw new Error('Invalid response structure from API')
       }
@@ -260,7 +264,7 @@ Provide helpful, practical, and accurate advice. Consider the current weather co
     const date = new Date(timestamp)
     const now = new Date()
     const diffDays = Math.floor((now - date) / (1000 * 60 * 60 * 24))
-    
+
     if (diffDays === 0) return 'Today'
     if (diffDays === 1) return 'Yesterday'
     if (diffDays < 7) return `${diffDays} days ago`
@@ -293,14 +297,14 @@ Provide helpful, practical, and accurate advice. Consider the current weather co
             </div>
           </div>
           <div className="ai-actions">
-            <button 
+            <button
               className="btn-secondary"
               onClick={() => setShowHistory(!showHistory)}
               title="Chat History"
             >
               📜 History
             </button>
-            <button 
+            <button
               className="btn-primary"
               onClick={startNewSession}
               title="Start New Chat"
@@ -317,7 +321,7 @@ Provide helpful, practical, and accurate advice. Consider the current weather co
           <div className="chat-history-sidebar">
             <div className="sidebar-header">
               <h3>💬 Previous Chats</h3>
-              <button 
+              <button
                 className="close-sidebar"
                 onClick={() => setShowHistory(false)}
               >
@@ -329,7 +333,7 @@ Provide helpful, practical, and accurate advice. Consider the current weather co
                 <p className="no-sessions">No previous conversations</p>
               ) : (
                 sessionHistory.map(session => (
-                  <div 
+                  <div
                     key={session.id}
                     className={`session-item ${session.id === currentSessionId ? 'active' : ''}`}
                     onClick={() => loadSession(session.id)}
@@ -338,7 +342,7 @@ Provide helpful, practical, and accurate advice. Consider the current weather co
                       <p className="session-title">{session.title}</p>
                       <p className="session-date">{formatSessionDate(session.lastUpdated)}</p>
                     </div>
-                    <button 
+                    <button
                       className="delete-session"
                       onClick={(e) => deleteSession(session.id, e)}
                       title="Delete conversation"
@@ -373,8 +377,8 @@ Provide helpful, practical, and accurate advice. Consider the current weather co
             )}
 
             {messages.map((message, index) => (
-              <div 
-                key={index} 
+              <div
+                key={index}
                 className={`message ${message.role}`}
               >
                 <div className="message-avatar">
@@ -414,7 +418,7 @@ Provide helpful, practical, and accurate advice. Consider the current weather co
                 rows="1"
                 disabled={isLoading}
               />
-              <button 
+              <button
                 className="send-button"
                 onClick={sendMessage}
                 disabled={!inputMessage.trim() || isLoading}

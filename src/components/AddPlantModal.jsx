@@ -1,4 +1,6 @@
 import { useState, useRef } from 'react'
+import { useLocation } from '../hooks/useLocation'
+import { useWeather } from '../hooks/useWeather'
 import '../styles/AddPlantModal.css'
 
 export default function AddPlantModal({ isOpen, onClose, onAddPlant }) {
@@ -9,7 +11,11 @@ export default function AddPlantModal({ isOpen, onClose, onAddPlant }) {
   const [imagePreview, setImagePreview] = useState(null)
   const [selectedFile, setSelectedFile] = useState(null)
   const [scanError, setScanError] = useState(null)
+  const [isGenerating, setIsGenerating] = useState(false)
   const fileInputRef = useRef(null)
+
+  const { userLocation, coordinates } = useLocation()
+  const weather = useWeather(coordinates, userLocation)
 
   const identifyPlantWithAPI = async (file) => {
     try {
@@ -19,12 +25,12 @@ export default function AddPlantModal({ isOpen, onClose, onAddPlant }) {
 
       // Convert file to base64
       const reader = new FileReader()
-      
+
       return new Promise((resolve, reject) => {
         reader.onload = async () => {
           try {
             const imageBase64 = reader.result
-            
+
             const response = await fetch(
               'http://localhost:5000/api/identify-plant',
               {
@@ -44,7 +50,7 @@ export default function AddPlantModal({ isOpen, onClose, onAddPlant }) {
             }
 
             const data = JSON.parse(responseText)
-            
+
             console.log('API Response:', data)
 
             if (data.results && data.results.length > 0) {
@@ -52,7 +58,7 @@ export default function AddPlantModal({ isOpen, onClose, onAddPlant }) {
               const commonNames = topResult.species?.commonNames || []
               const scientificName = topResult.species?.scientificNameWithoutAuthor || topResult.species?.scientificName || 'Unknown Plant'
               const commonName = commonNames.length > 0 ? commonNames[0] : scientificName
-              
+
               // Store plant details for preview
               setPlantDetails({
                 commonName: commonName,
@@ -63,7 +69,7 @@ export default function AddPlantModal({ isOpen, onClose, onAddPlant }) {
                 nbesID: topResult.nbesID || null,
                 sensitivity: topResult.sensitivity || null
               })
-              
+
               setPlantName(commonName)
               setScanError(null)
               resolve(commonName)
@@ -117,9 +123,9 @@ export default function AddPlantModal({ isOpen, onClose, onAddPlant }) {
     }
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    
+
     if (!plantName || !growthStage || !selectedFile) {
       alert('Please fill in all fields and select an image')
       return
@@ -130,29 +136,87 @@ export default function AddPlantModal({ isOpen, onClose, onAddPlant }) {
       return
     }
 
-    const newPlant = {
-      id: Date.now(),
-      name: plantName,
-      type: 'Custom Plant',
-      location: 'To be determined',
-      daysOld: 0,
-      health: 'Good',
-      icon: '🌱',
-      waterFrequency: 'To be determined',
-      soilType: 'To be determined',
-      sunlight: 'To be determined',
-      temperature: 'To be determined',
-      humidity: 'To be determined',
-      description: `New ${plantName} plant. Growth stage: ${growthStage}`,
-      lastWatered: 'Today',
-      nextWatering: 'Tomorrow',
-      growthStage: growthStage,
-      imageData: imagePreview
-    }
+    setIsGenerating(true)
 
-    onAddPlant(newPlant)
-    resetForm()
-    onClose()
+    try {
+      const apiKey = import.meta.env.VITE_GEMINI_API_KEY
+
+      const prompt = `You are a highly precise agricultural AI assistant. You need to generate an exact growing profile for a "${plantName}" at the "${growthStage}" stage.
+The farmer is at: ${weather.location || 'Unknown'} where it is currently ${weather.temperature !== '--' ? weather.temperature + '°C' : 'Unknown'}, ${weather.humidity !== '--' ? weather.humidity + '%' : 'Unknown'} humidity, and ${weather.condition || 'Unknown'}.
+
+Requirements for the output:
+- It must be a strict JSON object with EXACTLY the keys requested.
+- Use explicit, numeric measurements. Instead of "moderate water", use "500ml every 3 days" or "1 liter twice a week" based on the plant size/stage.
+- Write a short, highly tailored description explaining how to care for this specific plant at this growth stage, incorporating the weather context directly.
+
+Return a valid JSON object with these exact keys:
+{
+  "type": "Herb/Vegetable/Fruit/Flower/etc",
+  "waterFrequency": "e.g. 500ml every 3 days",
+  "soilType": "e.g. Well-draining, pH 6.0",
+  "sunlight": "e.g. 6-8 hours direct sunlight",
+  "temperature": "e.g. 18-24°C",
+  "humidity": "e.g. 50-60%",
+  "description": "Tailored, concise advice considering current weather and precise care needs.",
+  "nextWatering": "e.g. Tomorrow morning, 500ml"
+}
+Output ONLY the raw JSON object and nothing else. Ensure formatting is strictly JSON without markdown blocks.`;
+
+      let aiData = {};
+
+      if (apiKey) {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }],
+            generationConfig: {
+              temperature: 0.7,
+              responseMimeType: "application/json"
+            }
+          })
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          const aiText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (aiText) {
+            aiData = JSON.parse(aiText);
+          }
+        } else {
+          console.error("Gemini API failed:", await response.text());
+        }
+      }
+
+      const newPlant = {
+        id: Date.now(),
+        name: plantName,
+        type: aiData.type || 'Custom Plant',
+        location: weather.location || 'To be determined',
+        dateAdded: Date.now(),
+        health: 'Good',
+        icon: '🌱',
+        waterFrequency: aiData.waterFrequency || 'To be determined',
+        soilType: aiData.soilType || 'To be determined',
+        sunlight: aiData.sunlight || 'To be determined',
+        temperature: aiData.temperature || 'To be determined',
+        humidity: aiData.humidity || 'To be determined',
+        description: aiData.description || `New ${plantName} plant. Growth stage: ${growthStage}`,
+        lastWatered: 'Today',
+        nextWatering: aiData.nextWatering || 'Tomorrow',
+        growthStage: growthStage,
+        imageData: imagePreview
+      }
+
+      onAddPlant(newPlant)
+      resetForm()
+      onClose()
+    } catch (error) {
+      console.error('Error generating AI recommendations:', error);
+      alert('Failed to generate recommendations via AI. Please try again.');
+    } finally {
+      setIsGenerating(false)
+    }
   }
 
   const resetForm = () => {
@@ -200,9 +264,9 @@ export default function AddPlantModal({ isOpen, onClose, onAddPlant }) {
     <div className="modal-overlay" onClick={handleClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <button className="modal-close" onClick={handleClose}>✕</button>
-        
+
         <h2>🌱 Add New Plant</h2>
-        
+
         <form onSubmit={handleSubmit} className="add-plant-form">
           {/* Image Upload Section */}
           <div className="form-group">
@@ -345,9 +409,9 @@ export default function AddPlantModal({ isOpen, onClose, onAddPlant }) {
             <button
               type="submit"
               className="btn btn-submit"
-              disabled={isScanning || !plantName || scanError}
+              disabled={isScanning || isGenerating || !plantName || scanError}
             >
-              {isScanning ? 'Scanning...' : 'Add Plant'}
+              {isGenerating ? 'Generating AI Profile...' : isScanning ? 'Scanning...' : 'Add Plant'}
             </button>
           </div>
         </form>
