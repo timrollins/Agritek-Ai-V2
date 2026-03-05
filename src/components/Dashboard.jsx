@@ -16,8 +16,7 @@ export default function Dashboard({ onNavigate }) {
       id: 1,
       name: 'Tomato',
       type: 'Vegetable',
-      location: 'Garden Bed A',
-      daysOld: 45,
+      dateAdded: new Date(Date.now() - 45 * 24 * 60 * 60 * 1000),
       health: 'Excellent',
       icon: '🍅'
     },
@@ -25,8 +24,7 @@ export default function Dashboard({ onNavigate }) {
       id: 2,
       name: 'Basil',
       type: 'Herb',
-      location: 'Kitchen Window',
-      daysOld: 30,
+      dateAdded: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
       health: 'Good',
       icon: '🌿'
     },
@@ -34,8 +32,7 @@ export default function Dashboard({ onNavigate }) {
       id: 3,
       name: 'Lettuce',
       type: 'Vegetable',
-      location: 'Garden Bed B',
-      daysOld: 20,
+      dateAdded: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000),
       health: 'Good',
       icon: '🥬'
     },
@@ -43,8 +40,7 @@ export default function Dashboard({ onNavigate }) {
       id: 4,
       name: 'Mint',
       type: 'Herb',
-      location: 'Pot on Patio',
-      daysOld: 60,
+      dateAdded: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000),
       health: 'Excellent',
       icon: '🌱'
     }
@@ -140,12 +136,8 @@ export default function Dashboard({ onNavigate }) {
                   <p className="plant-type">{plant.type}</p>
                   <div className="plant-details">
                     <div className="detail">
-                      <span className="label">📍 Location:</span>
-                      <span className="value">{plant.location}</span>
-                    </div>
-                    <div className="detail">
-                      <span className="label">📅 Age:</span>
-                      <span className="value">{plant.daysOld} days</span>
+                      <span className="label">� Days Since Added:</span>
+                      <span className="value">{Math.floor((Date.now() - plant.dateAdded) / (24 * 60 * 60 * 1000))} days</span>
                     </div>
                     <div className="detail">
                       <span className="label">💚 Health:</span>

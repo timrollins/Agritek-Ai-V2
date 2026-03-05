@@ -7,7 +7,54 @@ export default function AddPlantModal({ isOpen, onClose, onAddPlant }) {
   const [isScanning, setIsScanning] = useState(false)
   const [imagePreview, setImagePreview] = useState(null)
   const [selectedFile, setSelectedFile] = useState(null)
+  const [scanError, setScanError] = useState(null)
   const fileInputRef = useRef(null)
+
+  const identifyPlantWithAPI = async (file) => {
+    try {
+      const apiKey = import.meta.env.VITE_PLANTNET_API_KEY
+      
+      if (!apiKey) {
+        throw new Error('PlantNet API key not configured. Please add VITE_PLANTNET_API_KEY to your .env file.')
+      }
+
+      const formData = new FormData()
+      formData.append('images', file)
+      formData.append('organs', 'leaf')
+
+      const response = await fetch(
+        `https://my-api.plantnet.org/v2/identify/all?api-key=${apiKey}`,
+        {
+          method: 'POST',
+          body: formData
+        }
+      )
+
+      if (!response.ok) {
+        throw new Error(`API error: ${response.statusText}`)
+      }
+
+      const data = await response.json()
+
+      if (data.results && data.results.length > 0) {
+        const topResult = data.results[0]
+        const scientificName = topResult.species?.scientificName || 'Unknown Plant'
+        const commonNames = topResult.species?.commonNames || []
+        const commonName = commonNames.length > 0 ? commonNames[0] : scientificName
+        
+        setPlantName(commonName)
+        setScanError(null)
+        return commonName
+      } else {
+        throw new Error('No plant identified. Please try another image.')
+      }
+    } catch (error) {
+      console.error('Error identifying plant:', error)
+      setScanError(error.message)
+      setPlantName('')
+      throw error
+    }
+  }
 
   const handleImageChange = async (e) => {
     const file = e.target.files?.[0]
@@ -21,16 +68,14 @@ export default function AddPlantModal({ isOpen, onClose, onAddPlant }) {
     reader.readAsDataURL(file)
     setSelectedFile(file)
 
-    // Simulate image scanning/identification
+    // Call PlantNet API to identify plant
     setIsScanning(true)
+    setScanError(null)
     try {
-      // Simulate API call to identify plant
-      await new Promise(resolve => setTimeout(resolve, 2000))
-      // In a real app, this would call an ML model or API to identify the plant
-      // For now, we'll just set a placeholder
-      setPlantName('Detected Plant')
+      await identifyPlantWithAPI(file)
     } catch (error) {
       console.error('Error scanning image:', error)
+      // Plant name will be empty, user can enter manually
     } finally {
       setIsScanning(false)
     }
@@ -136,6 +181,14 @@ export default function AddPlantModal({ isOpen, onClose, onAddPlant }) {
               <div className="scanning-indicator">
                 <div className="spinner"></div>
                 <p>Scanning and identifying plant...</p>
+              </div>
+            )}
+
+            {/* Error Message */}
+            {scanError && (
+              <div className="scan-error">
+                <p>⚠️ {scanError}</p>
+                <small>You can still enter the plant name manually</small>
               </div>
             )}
           </div>

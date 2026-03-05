@@ -9,8 +9,7 @@ export default function MyPlants({ selectedPlantId }) {
       id: 1,
       name: 'Tomato',
       type: 'Vegetable',
-      location: 'Garden Bed A',
-      daysOld: 45,
+      dateAdded: new Date(Date.now() - 45 * 24 * 60 * 60 * 1000),
       health: 'Excellent',
       icon: '🍅',
       waterFrequency: 'Daily',
@@ -26,8 +25,7 @@ export default function MyPlants({ selectedPlantId }) {
       id: 2,
       name: 'Basil',
       type: 'Herb',
-      location: 'Kitchen Window',
-      daysOld: 30,
+      dateAdded: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
       health: 'Good',
       icon: '🌿',
       waterFrequency: '3-4 times per week',
@@ -43,8 +41,7 @@ export default function MyPlants({ selectedPlantId }) {
       id: 3,
       name: 'Lettuce',
       type: 'Vegetable',
-      location: 'Garden Bed B',
-      daysOld: 20,
+      dateAdded: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000),
       health: 'Good',
       icon: '🥬',
       waterFrequency: 'Every 2-3 days',
@@ -60,8 +57,7 @@ export default function MyPlants({ selectedPlantId }) {
       id: 4,
       name: 'Mint',
       type: 'Herb',
-      location: 'Pot on Patio',
-      daysOld: 60,
+      dateAdded: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000),
       health: 'Excellent',
       icon: '🌱',
       waterFrequency: '2-3 times per week',
@@ -123,17 +119,10 @@ export default function MyPlants({ selectedPlantId }) {
 
             <div className="plant-stats">
               <div className="stat">
-                <span className="stat-icon">📍</span>
+                <span className="stat-icon">�</span>
                 <div className="stat-content">
-                  <p className="stat-label">Location</p>
-                  <p className="stat-value">{plant.location}</p>
-                </div>
-              </div>
-              <div className="stat">
-                <span className="stat-icon">📅</span>
-                <div className="stat-content">
-                  <p className="stat-label">Age</p>
-                  <p className="stat-value">{plant.daysOld} days</p>
+                  <p className="stat-label">Days Since Added</p>
+                  <p className="stat-value">{Math.floor((Date.now() - plant.dateAdded) / (24 * 60 * 60 * 1000))} days</p>
                 </div>
               </div>
               <div className="stat">
