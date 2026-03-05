@@ -1,9 +1,11 @@
 import { useState, useEffect, useRef } from 'react'
 import '../styles/MyPlants.css'
 import AddPlantModal from './AddPlantModal'
+import CheckHealthModal from './CheckHealthModal'
 
 export default function MyPlants({ selectedPlantId }) {
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [healthModalPlant, setHealthModalPlant] = useState(null)
   const [plants, setPlants] = useState([
     {
       id: 1,
@@ -71,6 +73,28 @@ export default function MyPlants({ selectedPlantId }) {
     }
   ])
 
+  // Load plants from localStorage on first render
+  useEffect(() => {
+    const stored = localStorage.getItem('agritek_plants')
+    if (!stored) return
+
+    try {
+      const parsed = JSON.parse(stored).map((p) => ({
+        ...p,
+        // Ensure dateAdded is a Date object again for calculations
+        dateAdded: p.dateAdded ? new Date(p.dateAdded) : new Date()
+      }))
+      setPlants(parsed)
+    } catch (err) {
+      console.error('Failed to parse stored plants', err)
+    }
+  }, [])
+
+  // Persist plants to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('agritek_plants', JSON.stringify(plants))
+  }, [plants])
+
   const plantRefs = useRef({})
 
   const handleDeletePlant = (plantId) => {
@@ -104,8 +128,8 @@ export default function MyPlants({ selectedPlantId }) {
               <div className="plant-info-header">
                 <h2>{plant.name}</h2>
                 <p className="plant-type-label">{plant.type}</p>
-                <span className={`health-badge health-${plant.health.toLowerCase()}`}>
-                  ♥ {plant.health}
+                <span className={`health-badge health-${(plant.healthStatus || plant.health || 'Good').toLowerCase()}`}>
+                  ♥ {plant.healthStatus || plant.health}
                 </span>
               </div>
               <button
@@ -177,6 +201,17 @@ export default function MyPlants({ selectedPlantId }) {
               <h3>🤖 AI Recommendations & Notes</h3>
               <p>{plant.description}</p>
             </div>
+
+            <div className="plant-actions-row">
+              <button
+                type="button"
+                className="check-health-btn"
+                onClick={() => setHealthModalPlant(plant)}
+                title="Check plant health status"
+              >
+                🩺 Check Health Status
+              </button>
+            </div>
           </div>
         ))}
       </div>
@@ -189,6 +224,38 @@ export default function MyPlants({ selectedPlantId }) {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onAddPlant={(newPlant) => setPlants([...plants, newPlant])}
+      />
+
+      <CheckHealthModal
+        isOpen={!!healthModalPlant}
+        plant={healthModalPlant}
+        onClose={(healthResult) => {
+          if (healthResult && healthModalPlant) {
+            setPlants(prev =>
+              prev.map(p =>
+                p.id === healthModalPlant.id
+                  ? {
+                      ...p,
+                      healthStatus:
+                        healthResult.health_score >= 0.8
+                          ? 'Excellent'
+                          : healthResult.health_score >= 0.5
+                          ? 'Fair'
+                          : 'Poor',
+                      healthDetails: {
+                        healthScore: healthResult.health_score,
+                        primaryDisease: healthResult.primary_disease,
+                        diseasesDetected: healthResult.diseases_detected,
+                        recommendations: healthResult.recommendations,
+                        lastCheckedAt: new Date().toISOString()
+                      }
+                    }
+                  : p
+              )
+            )
+          }
+          setHealthModalPlant(null)
+        }}
       />
     </div>
   )

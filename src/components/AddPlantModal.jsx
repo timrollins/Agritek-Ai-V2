@@ -6,7 +6,7 @@ import '../styles/AddPlantModal.css'
 export default function AddPlantModal({ isOpen, onClose, onAddPlant }) {
   const [plantName, setPlantName] = useState('')
   const [plantDetails, setPlantDetails] = useState(null)
-  const [growthStage, setGrowthStage] = useState('seedling')
+  const [growthStage, setGrowthStage] = useState('')
   const [isScanning, setIsScanning] = useState(false)
   const [imagePreview, setImagePreview] = useState(null)
   const [selectedFile, setSelectedFile] = useState(null)
@@ -222,7 +222,7 @@ Output ONLY the raw JSON object and nothing else. Ensure formatting is strictly 
   const resetForm = () => {
     setPlantName('')
     setPlantDetails(null)
-    setGrowthStage('seedling')
+    setGrowthStage('')
     setImagePreview(null)
     setSelectedFile(null)
     setIsScanning(false)
@@ -387,6 +387,9 @@ Output ONLY the raw JSON object and nothing else. Ensure formatting is strictly 
               disabled={isScanning}
               required
             >
+              <option value="" disabled>
+                Select growth stage
+              </option>
               <option value="seedling">Seedling</option>
               <option value="young">Young Plant</option>
               <option value="mature">Mature</option>
@@ -409,7 +412,7 @@ Output ONLY the raw JSON object and nothing else. Ensure formatting is strictly 
             <button
               type="submit"
               className="btn btn-submit"
-              disabled={isScanning || isGenerating || !plantName || scanError}
+              disabled={isScanning || isGenerating || !plantName || !growthStage || scanError}
             >
               {isGenerating ? 'Generating AI Profile...' : isScanning ? 'Scanning...' : 'Add Plant'}
             </button>
