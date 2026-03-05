@@ -18,6 +18,7 @@
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -42,6 +43,7 @@
     transform: translateY(20px);
     opacity: 0;
   }
+
   to {
     transform: translateY(0);
     opacity: 1;
@@ -164,6 +166,65 @@
   display: block;
 }
 
+/* Identification Results */
+.identification-results {
+  margin-top: 0.5rem;
+}
+
+.results-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.result-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: #fafafa;
+}
+
+.result-item:hover {
+  border-color: #2d5a4e;
+  background: #f0f8f7;
+}
+
+.result-item.selected {
+  border-color: #2d5a4e;
+  background: #e8f5e9;
+  box-shadow: 0 0 0 1px #2d5a4e;
+}
+
+.result-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.result-info strong {
+  font-size: 0.95rem;
+  color: #333;
+}
+
+.result-info small {
+  font-size: 0.8rem;
+  color: #666;
+  font-style: italic;
+}
+
+.result-probability {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #2d5a4e;
+  background: #e0eee8;
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+}
+
 /* Image Preview */
 .image-preview {
   position: relative;
@@ -212,9 +273,12 @@
 }
 
 @keyframes pulse {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 1;
   }
+
   50% {
     opacity: 0.7;
   }
