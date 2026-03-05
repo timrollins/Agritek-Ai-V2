@@ -3,6 +3,7 @@ import '../styles/AddPlantModal.css'
 
 export default function AddPlantModal({ isOpen, onClose, onAddPlant }) {
   const [plantName, setPlantName] = useState('')
+  const [plantDetails, setPlantDetails] = useState(null)
   const [growthStage, setGrowthStage] = useState('seedling')
   const [isScanning, setIsScanning] = useState(false)
   const [imagePreview, setImagePreview] = useState(null)
@@ -12,42 +13,77 @@ export default function AddPlantModal({ isOpen, onClose, onAddPlant }) {
 
   const identifyPlantWithAPI = async (file) => {
     try {
-      const apiKey = import.meta.env.VITE_PLANTNET_API_KEY
+      if (!file) {
+        throw new Error('No file provided')
+      }
+
+      // Convert file to base64
+      const reader = new FileReader()
       
-      if (!apiKey) {
-        throw new Error('PlantNet API key not configured. Please add VITE_PLANTNET_API_KEY to your .env file.')
-      }
+      return new Promise((resolve, reject) => {
+        reader.onload = async () => {
+          try {
+            const imageBase64 = reader.result
+            
+            const response = await fetch(
+              'http://localhost:5000/api/identify-plant',
+              {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ imageBase64 })
+              }
+            )
 
-      const formData = new FormData()
-      formData.append('images', file)
-      formData.append('organs', 'leaf')
+            const responseText = await response.text()
+            console.log('API Response Status:', response.status)
+            console.log('API Response Text:', responseText)
 
-      const response = await fetch(
-        `https://my-api.plantnet.org/v2/identify/all?api-key=${apiKey}`,
-        {
-          method: 'POST',
-          body: formData
+            if (!response.ok) {
+              reject(new Error(`API error: Status ${response.status} - ${responseText}`))
+              return
+            }
+
+            const data = JSON.parse(responseText)
+            
+            console.log('API Response:', data)
+
+            if (data.results && data.results.length > 0) {
+              const topResult = data.results[0]
+              const commonNames = topResult.species?.commonNames || []
+              const scientificName = topResult.species?.scientificNameWithoutAuthor || topResult.species?.scientificName || 'Unknown Plant'
+              const commonName = commonNames.length > 0 ? commonNames[0] : scientificName
+              
+              // Store plant details for preview
+              setPlantDetails({
+                commonName: commonName,
+                scientificName: scientificName,
+                commonNames: commonNames,
+                score: topResult.score || 0,
+                gbifID: topResult.gbifID || null,
+                nbesID: topResult.nbesID || null,
+                sensitivity: topResult.sensitivity || null
+              })
+              
+              setPlantName(commonName)
+              setScanError(null)
+              resolve(commonName)
+            } else {
+              reject(new Error('No plant identified. Please try another image.'))
+            }
+          } catch (error) {
+            console.error('Error identifying plant:', error)
+            setScanError(error.message)
+            setPlantName('')
+            reject(error)
+          }
         }
-      )
 
-      if (!response.ok) {
-        throw new Error(`API error: ${response.statusText}`)
-      }
+        reader.onerror = () => {
+          reject(new Error('Failed to read file'))
+        }
 
-      const data = await response.json()
-
-      if (data.results && data.results.length > 0) {
-        const topResult = data.results[0]
-        const scientificName = topResult.species?.scientificName || 'Unknown Plant'
-        const commonNames = topResult.species?.commonNames || []
-        const commonName = commonNames.length > 0 ? commonNames[0] : scientificName
-        
-        setPlantName(commonName)
-        setScanError(null)
-        return commonName
-      } else {
-        throw new Error('No plant identified. Please try another image.')
-      }
+        reader.readAsDataURL(file)
+      })
     } catch (error) {
       console.error('Error identifying plant:', error)
       setScanError(error.message)
@@ -89,6 +125,11 @@ export default function AddPlantModal({ isOpen, onClose, onAddPlant }) {
       return
     }
 
+    if (scanError) {
+      alert('Cannot add plant due to identification error. Please try another image.')
+      return
+    }
+
     const newPlant = {
       id: Date.now(),
       name: plantName,
@@ -116,10 +157,12 @@ export default function AddPlantModal({ isOpen, onClose, onAddPlant }) {
 
   const resetForm = () => {
     setPlantName('')
+    setPlantDetails(null)
     setGrowthStage('seedling')
     setImagePreview(null)
     setSelectedFile(null)
     setIsScanning(false)
+    setScanError(null)
     if (fileInputRef.current) {
       fileInputRef.current.value = ''
     }
@@ -128,6 +171,27 @@ export default function AddPlantModal({ isOpen, onClose, onAddPlant }) {
   const handleClose = () => {
     resetForm()
     onClose()
+  }
+
+  const handleRetryScanning = async () => {
+    if (selectedFile) {
+      setIsScanning(true)
+      setScanError(null)
+      try {
+        await identifyPlantWithAPI(selectedFile)
+      } catch (error) {
+        console.error('Error scanning image:', error)
+      } finally {
+        setIsScanning(false)
+      }
+    }
+  }
+
+  const handleChangeImage = () => {
+    setPlantName('')
+    setPlantDetails(null)
+    setScanError(null)
+    fileInputRef.current?.click()
   }
 
   if (!isOpen) return null
@@ -184,11 +248,26 @@ export default function AddPlantModal({ isOpen, onClose, onAddPlant }) {
               </div>
             )}
 
-            {/* Error Message */}
-            {scanError && (
+            {/* Error Message with Actions */}
+            {scanError && !isScanning && (
               <div className="scan-error">
                 <p>⚠️ {scanError}</p>
-                <small>You can still enter the plant name manually</small>
+                <div className="error-actions">
+                  <button
+                    type="button"
+                    className="error-btn btn-retry"
+                    onClick={handleRetryScanning}
+                  >
+                    🔄 Try Again
+                  </button>
+                  <button
+                    type="button"
+                    className="error-btn btn-change"
+                    onClick={handleChangeImage}
+                  >
+                    📸 Change Image
+                  </button>
+                </div>
               </div>
             )}
           </div>
@@ -201,11 +280,38 @@ export default function AddPlantModal({ isOpen, onClose, onAddPlant }) {
               type="text"
               value={plantName}
               onChange={(e) => setPlantName(e.target.value)}
-              placeholder="Enter plant name (from scan)"
-              disabled={isScanning}
+              placeholder="Scanning will identify your plant"
+              disabled={true}
               required
             />
           </div>
+
+          {/* Plant Details Preview */}
+          {plantDetails && !scanError && (
+            <div className="plant-details-preview">
+              <h3>📋 Plant Information</h3>
+              <div className="details-grid">
+                <div className="detail-item">
+                  <span className="detail-label">Common Name:</span>
+                  <span className="detail-value">{plantDetails.commonName}</span>
+                </div>
+                <div className="detail-item">
+                  <span className="detail-label">Scientific Name:</span>
+                  <span className="detail-value">{plantDetails.scientificName}</span>
+                </div>
+                {plantDetails.commonNames.length > 1 && (
+                  <div className="detail-item full-width">
+                    <span className="detail-label">Also known as:</span>
+                    <span className="detail-value">{plantDetails.commonNames.slice(1).join(', ')}</span>
+                  </div>
+                )}
+                <div className="detail-item">
+                  <span className="detail-label">Match Score:</span>
+                  <span className="detail-value">{(plantDetails.score * 100).toFixed(1)}%</span>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Growth Stage */}
           <div className="form-group">
@@ -239,7 +345,7 @@ export default function AddPlantModal({ isOpen, onClose, onAddPlant }) {
             <button
               type="submit"
               className="btn btn-submit"
-              disabled={isScanning || !plantName}
+              disabled={isScanning || !plantName || scanError}
             >
               {isScanning ? 'Scanning...' : 'Add Plant'}
             </button>

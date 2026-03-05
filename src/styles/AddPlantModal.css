@@ -125,6 +125,56 @@
   opacity: 0.6;
 }
 
+/* Plant Details Preview */
+.plant-details-preview {
+  padding: 1.2rem;
+  background: linear-gradient(135deg, #e8f5e9 0%, #f1f8f6 100%);
+  border: 2px solid #2d5a4e;
+  border-radius: 10px;
+  margin: 1rem 0;
+  animation: slideIn 0.3s ease;
+}
+
+.plant-details-preview h3 {
+  margin: 0 0 1rem 0;
+  color: #2d5a4e;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.details-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.detail-item.full-width {
+  grid-column: 1 / -1;
+}
+
+.detail-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #555;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.detail-value {
+  font-size: 0.95rem;
+  color: #2d5a4e;
+  font-weight: 500;
+  word-break: break-word;
+}
+
 /* Image Upload Area */
 .image-upload-area {
   position: relative;
@@ -303,6 +353,74 @@
 .scanning-indicator p {
   margin: 0;
   font-weight: 500;
+}
+
+/* Error Message */
+.scan-error {
+  padding: 1rem;
+  background: #ffebee;
+  border: 1px solid #ef5350;
+  border-radius: 8px;
+  color: #c62828;
+  font-size: 0.9rem;
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.scan-error p {
+  margin: 0 0 0.75rem 0;
+  font-weight: 500;
+}
+
+.error-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.error-btn {
+  padding: 0.6rem 1rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex: 1;
+  min-width: 120px;
+}
+
+.btn-retry {
+  background: #ff9800;
+  color: white;
+}
+
+.btn-retry:hover {
+  background: #f57c00;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 152, 0, 0.3);
+}
+
+.btn-change {
+  background: #2196f3;
+  color: white;
+}
+
+.btn-change:hover {
+  background: #1976d2;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
 }
 
 /* Form Actions */
