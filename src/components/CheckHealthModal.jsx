@@ -82,6 +82,7 @@ export default function CheckHealthModal({ isOpen, plant, onClose }) {
       }
 
       // Store result locally so user can review it before closing
+      console.log('Health result received from backend:', JSON.stringify(data, null, 2))
       setHealthResult(data)
     } catch (error) {
       console.error('Error checking plant health:', error)
@@ -140,53 +141,76 @@ export default function CheckHealthModal({ isOpen, plant, onClose }) {
           {healthResult && (
             <div className="plant-details-preview">
               <h3>📊 Health Analysis Result</h3>
+              {/* Debug: Show raw data structure */}
+              {process.env.NODE_ENV === 'development' && (
+                <details style={{ marginBottom: '1rem', fontSize: '0.8rem', color: '#666' }}>
+                  <summary style={{ cursor: 'pointer' }}>🔍 Debug: Raw Response</summary>
+                  <pre style={{ background: '#f5f5f5', padding: '0.5rem', borderRadius: '4px', overflow: 'auto', maxHeight: '200px' }}>
+                    {JSON.stringify(healthResult, null, 2)}
+                  </pre>
+                </details>
+              )}
               <div className="details-grid">
                 <div className="detail-item">
                   <span className="detail-label">Health Score</span>
                   <span className="detail-value">
                     {(() => {
+                      // Try multiple possible paths for health_score
                       const rawScore =
-                        healthResult.health_score ??
-                        healthResult.healthScore ??
-                        healthResult.score
+                        healthResult?.health_score ??
+                        healthResult?.healthScore ??
+                        healthResult?.score ??
+                        healthResult?.data?.health_score ??
+                        healthResult?.data?.healthScore ??
+                        healthResult?.data?.score
+                      
+                      console.log('Attempting to extract health score from:', { rawScore, healthResult })
+                      
                       const num = Number(rawScore)
-                      if (Number.isNaN(num)) return 'N/A'
+                      if (Number.isNaN(num) || rawScore === undefined || rawScore === null) {
+                        console.warn('Could not find health_score in:', Object.keys(healthResult || {}))
+                        return 'N/A'
+                      }
                       // If score is 0–1, treat as ratio; if >1, assume already percentage-like
                       const pct = num <= 1 ? num * 100 : num
                       return `${pct.toFixed(1)}%`
                     })()}
                   </span>
                 </div>
-                {healthResult.primary_disease && (
-                  <>
-                    <div className="detail-item">
-                      <span className="detail-label">Primary Disease</span>
-                      <span className="detail-value">
-                        {healthResult.primary_disease.name || 'Unknown'}
-                      </span>
-                    </div>
-                    <div className="detail-item">
-                      <span className="detail-label">Severity</span>
-                      <span className="detail-value">
-                        {healthResult.primary_disease.severity || 'N/A'}
-                      </span>
-                    </div>
-                    <div className="detail-item">
-                      <span className="detail-label">Primary Confidence</span>
-                      <span className="detail-value">
-                        {typeof healthResult.primary_disease.confidence === 'number'
-                          ? `${(healthResult.primary_disease.confidence * 100).toFixed(1)}%`
-                          : 'N/A'}
-                      </span>
-                    </div>
-                  </>
-                )}
-                {Array.isArray(healthResult.diseases_detected) &&
-                  healthResult.diseases_detected.length > 0 && (
+                {(() => {
+                  const primaryDisease = healthResult?.primary_disease ?? healthResult?.data?.primary_disease
+                  return primaryDisease && (
+                    <>
+                      <div className="detail-item">
+                        <span className="detail-label">Primary Disease</span>
+                        <span className="detail-value">
+                          {primaryDisease.name || 'Unknown'}
+                        </span>
+                      </div>
+                      <div className="detail-item">
+                        <span className="detail-label">Severity</span>
+                        <span className="detail-value">
+                          {primaryDisease.severity || 'N/A'}
+                        </span>
+                      </div>
+                      <div className="detail-item">
+                        <span className="detail-label">Primary Confidence</span>
+                        <span className="detail-value">
+                          {typeof primaryDisease.confidence === 'number'
+                            ? `${(primaryDisease.confidence * 100).toFixed(1)}%`
+                            : 'N/A'}
+                        </span>
+                      </div>
+                    </>
+                  )
+                })()}
+                {(() => {
+                  const diseases = healthResult?.diseases_detected ?? healthResult?.data?.diseases_detected
+                  return Array.isArray(diseases) && diseases.length > 0 && (
                     <div className="detail-item full-width">
                       <span className="detail-label">Detected Diseases</span>
                       <span className="detail-value">
-                        {healthResult.diseases_detected
+                        {diseases
                           .map(d => {
                             const conf =
                               typeof d.confidence === 'number'
@@ -198,24 +222,30 @@ export default function CheckHealthModal({ isOpen, plant, onClose }) {
                           .join(' • ')}
                       </span>
                     </div>
-                  )}
-                {Array.isArray(healthResult.recommendations) &&
-                  healthResult.recommendations.length > 0 && (
+                  )
+                })()}
+                {(() => {
+                  const recommendations = healthResult?.recommendations ?? healthResult?.data?.recommendations
+                  return Array.isArray(recommendations) && recommendations.length > 0 && (
                     <div className="detail-item full-width">
                       <span className="detail-label">Recommendations</span>
                       <span className="detail-value">
-                        {healthResult.recommendations.join(' • ')}
+                        {recommendations.join(' • ')}
                       </span>
                     </div>
-                  )}
-                {typeof healthResult.processing_time === 'number' && (
-                  <div className="detail-item">
-                    <span className="detail-label">Processing Time</span>
-                    <span className="detail-value">
-                      {healthResult.processing_time.toFixed(2)}s
-                    </span>
-                  </div>
-                  )}
+                  )
+                })()}
+                {(() => {
+                  const processingTime = healthResult?.processing_time ?? healthResult?.data?.processing_time
+                  return typeof processingTime === 'number' && (
+                    <div className="detail-item">
+                      <span className="detail-label">Processing Time</span>
+                      <span className="detail-value">
+                        {processingTime.toFixed(2)}s
+                      </span>
+                    </div>
+                  )
+                })()}
               </div>
             </div>
           )}

@@ -133,11 +133,35 @@ app.post('/api/analyze-health', async (req, res) => {
       'plant_disease' // 'Select Model' dropdown
     ])
 
-    console.log('Raw health analysis result from Gradio:', result)
+    console.log('Raw health analysis result from Gradio:', JSON.stringify(result, null, 2))
 
-    // Gradio returns { data: [ ... ] }, forward the first element if present
-    const payload = Array.isArray(result?.data) && result.data.length > 0 ? result.data[0] : result
+    // Gradio typically returns { data: [ ... ] }
+    // The first element might be a string (JSON) or an object
+    let payload = result
+    
+    if (result?.data && Array.isArray(result.data) && result.data.length > 0) {
+      const firstElement = result.data[0]
+      
+      // If it's a string, try to parse it as JSON
+      if (typeof firstElement === 'string') {
+        try {
+          payload = JSON.parse(firstElement)
+          console.log('Parsed JSON string from Gradio:', JSON.stringify(payload, null, 2))
+        } catch (e) {
+          console.log('First element is a string but not JSON, using as-is:', firstElement)
+          payload = firstElement
+        }
+      } else if (typeof firstElement === 'object') {
+        // If it's already an object, use it directly
+        payload = firstElement
+        console.log('Using object from Gradio data array:', JSON.stringify(payload, null, 2))
+      } else {
+        // Fallback: use the whole result
+        payload = result
+      }
+    }
 
+    console.log('Final payload being sent to frontend:', JSON.stringify(payload, null, 2))
     console.log('Successfully analyzed plant health')
     res.json(payload)
   } catch (error) {
