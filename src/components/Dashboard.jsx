@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import '../styles/Dashboard.css'
 import { useLocation } from '../hooks/useLocation'
 import { useWeather } from '../hooks/useWeather'
@@ -10,78 +10,27 @@ export default function Dashboard({ onNavigate }) {
   // Fetch weather data based on coordinates and location
   const weather = useWeather(coordinates, userLocation)
 
-  // Pseudo data for plants
-  const [plants] = useState([
-    {
-      id: 1,
-      name: 'Tomato',
-      type: 'Vegetable',
-      dateAdded: new Date(Date.now() - 45 * 24 * 60 * 60 * 1000),
-      health: 'Excellent',
-      icon: '🍅'
-    },
-    {
-      id: 2,
-      name: 'Basil',
-      type: 'Herb',
-      dateAdded: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
-      health: 'Good',
-      icon: '🌿'
-    },
-    {
-      id: 3,
-      name: 'Lettuce',
-      type: 'Vegetable',
-      dateAdded: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000),
-      health: 'Good',
-      icon: '🥬'
-    },
-    {
-      id: 4,
-      name: 'Mint',
-      type: 'Herb',
-      dateAdded: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000),
-      health: 'Excellent',
-      icon: '🌱'
+  // Load actual plants from localStorage
+  const [plants, setPlants] = useState([])
+  
+  // Load plants on component mount
+  useEffect(() => {
+    const stored = localStorage.getItem('agritek_plants')
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored).map((p) => ({
+          ...p,
+          dateAdded: p.dateAdded ? new Date(p.dateAdded) : new Date()
+        }))
+        setPlants(parsed)
+      } catch (err) {
+        console.error('Failed to parse stored plants', err)
+        setPlants([])
+      }
     }
-  ])
+  }, [])
 
-  // Pseudo Gemini recommendations
-  const recommendations = [
-    {
-      id: 1,
-      plant: 'Tomato',
-      recommendation: 'Water deeply in the morning. Ensure soil stays moist but not waterlogged.',
-      priority: 'high',
-      icon: '💧'
-    },
-    {
-      id: 2,
-      plant: 'Lettuce',
-      recommendation: 'Provide shade during afternoon hours to prevent bolting in warm weather.',
-      priority: 'medium',
-      icon: '🌞'
-    },
-    {
-      id: 3,
-      plant: 'Basil',
-      recommendation: 'Pinch off flower buds to encourage leaf growth and extend harvest season.',
-      priority: 'low',
-      icon: '✂️'
-    },
-    {
-      id: 4,
-      plant: 'Mint',
-      recommendation: 'Harvest leaves regularly to promote bushier growth and prevent flowering.',
-      priority: 'medium',
-      icon: '🌿'
-    }
-  ]
 
-  // Helper function to get recommendation for a plant
-  const getRecommendation = (plantName) => {
-    return recommendations.find(rec => rec.plant === plantName)
-  }
 
   return (
     <div className="dashboard">
@@ -120,11 +69,20 @@ export default function Dashboard({ onNavigate }) {
 
         {/* Plants Section */}
         <section className="section plants-section">
-          <h2>🌾 Your Plants</h2>
-          <div className="plants-grid">
-            {plants.map(plant => {
-              const rec = getRecommendation(plant.name)
-              return (
+          <h2>Your Plants Summary</h2>
+          {plants.length === 0 ? (
+            <div className="empty-message">
+              <p>No plants added yet. Start adding plants to see them here!</p>
+              <button 
+                className="btn-add-plant"
+                onClick={() => onNavigate('my-plants')}
+              >
+                Add Your First Plant
+              </button>
+            </div>
+          ) : (
+            <div className="plants-grid">
+            {plants.map(plant => (
                 <div 
                   key={plant.id} 
                   className="plant-card clickable"
@@ -141,22 +99,13 @@ export default function Dashboard({ onNavigate }) {
                     </div>
                     <div className="detail">
                       <span className="label">💚 Health:</span>
-                      <span className={`value health-${plant.health.toLowerCase()}`}>{plant.health}</span>
+                      <span className={`value health-${(plant.healthStatus || plant.health || 'Good').toLowerCase()}`}>{plant.healthStatus || plant.health || 'Good'}</span>
                     </div>
                   </div>
-                  {rec && (
-                    <div className={`plant-recommendation priority-${rec.priority}`}>
-                      <div className="rec-header-card">
-                        <span className="rec-icon">{rec.icon}</span>
-                        <span className={`priority-badge-card ${rec.priority}`}>{rec.priority}</span>
-                      </div>
-                      <p className="rec-text-card">{rec.recommendation}</p>
-                    </div>
-                  )}
                 </div>
-              )
-            })}
-          </div>
+              ))}
+            </div>
+          )}
         </section>
       </div>
     </div>

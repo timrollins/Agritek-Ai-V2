@@ -30,15 +30,7 @@ export default function Navigation({ onNavigate, currentPage }) {
         ))}
       </ul>
 
-      <div className="nav-footer">
-        <div className="user-info">
-          <div className="user-avatar">👤</div>
-          <div className="user-details">
-            <p className="user-name">Tim</p>
-            <p className="user-email">tim@agritek.com</p>
-          </div>
-        </div>
-      </div>
+
     </nav>
   )
 }

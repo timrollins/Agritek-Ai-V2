@@ -161,6 +161,32 @@ app.post('/api/analyze-health', async (req, res) => {
       }
     }
 
+    // If the space returned a FileData object (uploaded file metadata), try fetching it
+    // Example FileData: { path, url, orig_name, meta: { _type: 'gradio.FileData' } }
+    if (payload && typeof payload === 'object' && (payload.url || payload?.meta?._type === 'gradio.FileData')) {
+      try {
+        console.log('Gradio returned a file reference - attempting to fetch its URL:', payload.url)
+        const fileResp = await fetch(payload.url)
+        const contentType = fileResp.headers.get('content-type') || ''
+
+        if (contentType.includes('application/json') || contentType.includes('text/json')) {
+          const jsonPayload = await fileResp.json()
+          console.log('Fetched JSON from file URL, using as payload:', JSON.stringify(jsonPayload, null, 2))
+          payload = jsonPayload
+        } else {
+          console.warn('File URL did not return JSON. Content-Type:', contentType)
+          // Return a helpful message so frontend can show appropriate UI
+          return res.status(502).json({
+            error: 'Unexpected response from health model space',
+            details: 'The remote Gradio space returned a file (image) instead of JSON analysis. Check the Space configuration.'
+          })
+        }
+      } catch (fetchErr) {
+        console.error('Failed to fetch file URL returned by Gradio space:', fetchErr)
+        return res.status(502).json({ error: 'Failed to retrieve data from Gradio space', details: fetchErr.message })
+      }
+    }
+
     console.log('Final payload being sent to frontend:', JSON.stringify(payload, null, 2))
     console.log('Successfully analyzed plant health')
     res.json(payload)

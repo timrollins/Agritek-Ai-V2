@@ -1,77 +1,10 @@
 import { useState, useEffect, useRef } from 'react'
 import '../styles/MyPlants.css'
 import AddPlantModal from './AddPlantModal'
-import CheckHealthModal from './CheckHealthModal'
 
 export default function MyPlants({ selectedPlantId }) {
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [healthModalPlant, setHealthModalPlant] = useState(null)
-  const [plants, setPlants] = useState([
-    {
-      id: 1,
-      name: 'Tomato',
-      type: 'Vegetable',
-      dateAdded: new Date(Date.now() - 45 * 24 * 60 * 60 * 1000),
-      health: 'Excellent',
-      icon: '🍅',
-      waterFrequency: 'Daily',
-      soilType: 'Loamy',
-      sunlight: '6-8 hours',
-      temperature: '70-85°F',
-      humidity: '60-70%',
-      description: 'Thriving tomato plant with excellent growth. Producing fruits consistently.',
-      lastWatered: '2 hours ago',
-      nextWatering: 'Tomorrow morning'
-    },
-    {
-      id: 2,
-      name: 'Basil',
-      type: 'Herb',
-      dateAdded: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
-      health: 'Good',
-      icon: '🌿',
-      waterFrequency: '3-4 times per week',
-      soilType: 'Well-draining',
-      sunlight: '6-8 hours',
-      temperature: '65-75°F',
-      humidity: '50-60%',
-      description: 'Healthy basil plant, perfect for culinary use. Regular pruning recommended.',
-      lastWatered: '1 day ago',
-      nextWatering: 'In 2 days'
-    },
-    {
-      id: 3,
-      name: 'Lettuce',
-      type: 'Vegetable',
-      dateAdded: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000),
-      health: 'Good',
-      icon: '🥬',
-      waterFrequency: 'Every 2-3 days',
-      soilType: 'Rich loam',
-      sunlight: '4-6 hours',
-      temperature: '60-70°F',
-      humidity: '65-75%',
-      description: 'Young lettuce plant growing steadily. Ready for partial harvest in 1-2 weeks.',
-      lastWatered: '12 hours ago',
-      nextWatering: 'In 1 day'
-    },
-    {
-      id: 4,
-      name: 'Mint',
-      type: 'Herb',
-      dateAdded: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000),
-      health: 'Excellent',
-      icon: '🌱',
-      waterFrequency: '2-3 times per week',
-      soilType: 'Well-draining',
-      sunlight: '4-6 hours',
-      temperature: '60-75°F',
-      humidity: '50-60%',
-      description: 'Mature mint plant with vigorous growth. Excellent for tea and recipes.',
-      lastWatered: '3 hours ago',
-      nextWatering: 'In 2 days'
-    }
-  ])
+  const [plants, setPlants] = useState([])
 
   // Load plants from localStorage on first render
   useEffect(() => {
@@ -117,7 +50,35 @@ export default function MyPlants({ selectedPlantId }) {
       </header>
 
       <div className="plants-container">
-        {plants.map(plant => (
+        {plants.length === 0 ? (
+          <div className="empty-state">
+            <div className="empty-state-content">
+              <h2>🌱 No plants yet</h2>
+              <p>Start by adding your first plant to track and manage it.</p>
+              <div className="example-plant-template">
+                <h3>📋 Example Plant Format:</h3>
+                <div className="template-card">
+                  <p><strong>Name:</strong> Tomato</p>
+                  <p><strong>Type:</strong> Vegetable</p>
+                  <p><strong>Icon:</strong> 🍅</p>
+                  <p><strong>Water Frequency:</strong> Daily</p>
+                  <p><strong>Soil Type:</strong> Loamy</p>
+                  <p><strong>Sunlight:</strong> 6-8 hours</p>
+                  <p><strong>Temperature:</strong> 70-85°F</p>
+                  <p><strong>Humidity:</strong> 60-70%</p>
+                </div>
+              </div>
+              <button
+                className="fab-button inline"
+                onClick={() => setIsModalOpen(true)}
+                title="Add first plant"
+              >
+                add plant
+              </button>
+            </div>
+          </div>
+        ) : (
+          plants.map(plant => (
           <div
             key={plant.id}
             ref={el => plantRefs.current[plant.id] = el}
@@ -206,18 +167,19 @@ export default function MyPlants({ selectedPlantId }) {
               <button
                 type="button"
                 className="check-health-btn"
-                onClick={() => setHealthModalPlant(plant)}
-                title="Check plant health status"
+                disabled
+                title="Health check unavailable"
               >
                 🩺 Check Health Status
               </button>
             </div>
           </div>
-        ))}
+        ))
+        )}
       </div>
 
       <button className="fab-button" title="Add new plant" onClick={() => setIsModalOpen(true)}>
-        ➕
+        add plant
       </button>
 
       <AddPlantModal
@@ -226,37 +188,7 @@ export default function MyPlants({ selectedPlantId }) {
         onAddPlant={(newPlant) => setPlants([...plants, newPlant])}
       />
 
-      <CheckHealthModal
-        isOpen={!!healthModalPlant}
-        plant={healthModalPlant}
-        onClose={(healthResult) => {
-          if (healthResult && healthModalPlant) {
-            setPlants(prev =>
-              prev.map(p =>
-                p.id === healthModalPlant.id
-                  ? {
-                      ...p,
-                      healthStatus:
-                        healthResult.health_score >= 0.8
-                          ? 'Excellent'
-                          : healthResult.health_score >= 0.5
-                          ? 'Fair'
-                          : 'Poor',
-                      healthDetails: {
-                        healthScore: healthResult.health_score,
-                        primaryDisease: healthResult.primary_disease,
-                        diseasesDetected: healthResult.diseases_detected,
-                        recommendations: healthResult.recommendations,
-                        lastCheckedAt: new Date().toISOString()
-                      }
-                    }
-                  : p
-              )
-            )
-          }
-          setHealthModalPlant(null)
-        }}
-      />
+
     </div>
   )
 }
